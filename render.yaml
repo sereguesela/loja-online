@@ -3,7 +3,7 @@ services:
     name: site-vendas
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:create_app()
+    startCommand: gunicorn wsgi:app
     envVars:
       - key: PYTHON_VERSION
         value: 3.9.0
@@ -16,13 +16,13 @@ services:
       - key: WTF_CSRF_SECRET_KEY
         generateValue: true
       - key: MP_ACCESS_TOKEN
-        sync: false
+        sync: true
       - key: MP_PUBLIC_KEY
-        sync: false
+        sync: true
       - key: PIX_KEY
-        sync: false
+        sync: true
 
 databases:
   - name: site-vendas-db
     plan: free
-    ipAllowList: [] 
+    ipAllowList: []
