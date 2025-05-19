@@ -15,10 +15,6 @@ services:
         generateValue: true
       - key: WTF_CSRF_SECRET_KEY
         generateValue: true
-      - key: MP_ACCESS_TOKEN
-        sync: true
-      - key: MP_PUBLIC_KEY
-        sync: true
       - key: PIX_KEY
         sync: true
 

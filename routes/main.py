@@ -1,7 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from models import db, Product, Category
 from flask_login import current_user
-from app import csrf
 
 main_bp = Blueprint('main', __name__)
 

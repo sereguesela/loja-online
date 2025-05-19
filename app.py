@@ -8,11 +8,6 @@ from models import db, User, Product, Category, Order, OrderItem, Message
 from forms import LoginForm, RegistrationForm, ProductForm, CategoryForm, MessageForm, OrderPaymentNotificationForm
 from utils import save_image, admin_required, format_currency, get_order_status_label
 from config import Config
-# Em routes/main.py, por exemplo
-from app import csrf
-
-csrf = CSRFProtect()  # Instancia o CSRF globalmente
-
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -20,8 +15,10 @@ def create_app(config_class=Config):
 
     # Inicializa as extensões
     db.init_app(app)
-    csrf.init_app(app)  # Inicializa no app
-
+    
+    # Inicializa o CSRF
+    csrf = CSRFProtect()
+    csrf.init_app(app)
     
     login_manager = LoginManager()
     login_manager.init_app(app)
