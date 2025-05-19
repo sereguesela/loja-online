@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Chat com Clientes</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Lista de Clientes -->
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Clientes</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for user_id, username in users.items() %}
+                    <a href="{{ url_for('admin.chat', user_id=user_id) }}" 
+                       class="list-group-item list-group-item-action {% if selected_user and selected_user.id == user_id %}active{% endif %}">
+                        {{ username }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat -->
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        {% if selected_user %}
+                            Chat com {{ selected_user.username }}
+                            {% if selected_order_id %}
+                            - Pedido #{{ selected_order_id }}
+                            {% endif %}
+                        {% else %}
+                            Selecione um cliente para iniciar o chat
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if selected_user %}
+                        <!-- Mensagens -->
+                        <div class="chat-messages mb-4" style="height: 400px; overflow-y: auto;">
+                            {% if messages %}
+                                {% for message in messages %}
+                                <div class="mb-3 {% if message.sender_id == current_user.id %}text-end{% endif %}">
+                                    <div class="d-inline-block p-2 rounded {% if message.sender_id == current_user.id %}bg-primary text-white{% else %}bg-light{% endif %}" 
+                                         style="max-width: 75%;">
+                                        <div class="message-content">
+                                            {{ message.content }}
+                                        </div>
+                                        <small class="{% if message.sender_id == current_user.id %}text-white-50{% else %}text-muted{% endif %}">
+                                            {{ message.timestamp.strftime('%d/%m/%Y %H:%M') }}
+                                            {% if message.order_id %}
+                                            <br>Ref: Pedido #{{ message.order_id }}
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="text-center text-muted">Nenhuma mensagem ainda. Comece uma conversa!</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Formulário de Mensagem -->
+                        <form method="POST" action="{{ url_for('admin.enviar_mensagem', user_id=selected_user.id, order_id=selected_order_id) }}">
+                            {{ form.hidden_tag() }}
+                            <div class="input-group">
+                                {{ form.content(class="form-control", placeholder="Digite sua mensagem...") }}
+                                <button type="submit" class="btn btn-primary">Enviar</button>
+                            </div>
+                        </form>
+                    {% else %}
+                        <p class="text-center text-muted">Selecione um cliente para iniciar uma conversa.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Rola a janela de chat para a última mensagem
+    document.addEventListener('DOMContentLoaded', function() {
+        var chatMessages = document.querySelector('.chat-messages');
+        if (chatMessages) {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %} 

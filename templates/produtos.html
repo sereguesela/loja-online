@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="page-header mb-4">Nossos Produtos</h1>
+    </div>
+    
+    <!-- Filtros -->
+    <div class="col-lg-3 mb-4">
+        <div class="filter-panel">
+            <h5 class="mb-3">Filtros</h5>
+            
+            <!-- Categorias -->
+            <div class="mb-4">
+                <h6>Categorias</h6>
+                <div class="list-group">
+                    <a href="{{ url_for('main.produtos') }}" class="list-group-item list-group-item-action {% if not current_category %}active{% endif %}">
+                        Todas as categorias
+                    </a>
+                    {% for category in categories %}
+                    <a href="{{ url_for('main.produtos', categoria=category.id, q=search_query, sort_by=sort_by) }}" 
+                       class="list-group-item list-group-item-action {% if current_category == category.id %}active{% endif %}">
+                        {{ category.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Ordenação -->
+            <div class="mb-4">
+                <h6>Ordenar por</h6>
+                <div class="list-group">
+                    <a href="{{ url_for('main.produtos', categoria=current_category, q=search_query, sort_by='newest') }}" 
+                       class="list-group-item list-group-item-action {% if sort_by == 'newest' %}active{% endif %}">
+                        Mais recentes
+                    </a>
+                    <a href="{{ url_for('main.produtos', categoria=current_category, q=search_query, sort_by='price_low') }}" 
+                       class="list-group-item list-group-item-action {% if sort_by == 'price_low' %}active{% endif %}">
+                        Menor preço
+                    </a>
+                    <a href="{{ url_for('main.produtos', categoria=current_category, q=search_query, sort_by='price_high') }}" 
+                       class="list-group-item list-group-item-action {% if sort_by == 'price_high' %}active{% endif %}">
+                        Maior preço
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Lista de produtos -->
+    <div class="col-lg-9">
+        {% if search_query %}
+        <div class="alert alert-info mb-4">
+            Resultados da busca por: <strong>{{ search_query }}</strong>
+            <a href="{{ url_for('main.produtos', categoria=current_category, sort_by=sort_by) }}" class="float-end">Limpar busca</a>
+        </div>
+        {% endif %}
+        
+        {% if products.items %}
+        <div class="row">
+            {% for product in products.items %}
+            <div class="col-sm-6 col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    {% if product.image_filename %}
+                    <img src="{{ url_for('static', filename='uploads/' + product.image_filename) }}" class="card-img-top" alt="{{ product.title }}">
+                    {% else %}
+                    <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="{{ product.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.title }}</h5>
+                        <p class="card-text text-truncate">{{ product.description }}</p>
+                        <p class="card-price">{{ product.price|format_currency }}</p>
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('main.produto_detalhes', product_id=product.id) }}" class="btn btn-outline-primary">
+                                <i class="fas fa-eye me-1"></i>Detalhes
+                            </a>
+                            {% if current_user.is_authenticated and not current_user.is_admin %}
+                            <a href="{{ url_for('cliente.comprar', product_id=product.id) }}" class="btn btn-primary">
+                                <i class="fas fa-shopping-cart me-1"></i>Comprar
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Paginação -->
+        {% if products.pages > 1 %}
+        <div class="d-flex justify-content-center mt-4">
+            <nav aria-label="Navegação de produtos">
+                <ul class="pagination">
+                    {% if products.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('main.produtos', page=products.prev_num, categoria=current_category, q=search_query, sort_by=sort_by) }}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page_num in products.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                        {% if page_num %}
+                            {% if page_num == products.page %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                            {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('main.produtos', page=page_num, categoria=current_category, q=search_query, sort_by=sort_by) }}">{{ page_num }}</a>
+                            </li>
+                            {% endif %}
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if products.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('main.produtos', page=products.next_num, categoria=current_category, q=search_query, sort_by=sort_by) }}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            Nenhum produto encontrado.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Gerenciar Clientes</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Clientes Cadastrados</h5>
+        </div>
+        <div class="card-body">
+            {% if clientes %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome de Usuário</th>
+                            <th>Email</th>
+                            <th>Data de Cadastro</th>
+                            <th>Pedidos</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cliente in clientes %}
+                        <tr>
+                            <td>#{{ cliente.id }}</td>
+                            <td>{{ cliente.username }}</td>
+                            <td>{{ cliente.email }}</td>
+                            <td>{{ cliente.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                            <td>
+                                {% set num_pedidos = cliente.orders|length %}
+                                <span class="badge bg-info">{{ num_pedidos }} pedido(s)</span>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{{ url_for('admin.chat', user_id=cliente.id) }}" 
+                                       class="btn btn-sm btn-primary">
+                                        <i class="fas fa-comments"></i> Chat
+                                    </a>
+                                    <a href="{{ url_for('admin.pedidos') }}?cliente_id={{ cliente.id }}" 
+                                       class="btn btn-sm btn-info">
+                                        <i class="fas fa-shopping-cart"></i> Pedidos
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted mb-0">Nenhum cliente cadastrado.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

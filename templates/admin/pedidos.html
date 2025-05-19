@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Gerenciar Pedidos</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Pedidos</h5>
+                <div class="btn-group">
+                    <a href="{{ url_for('admin.pedidos') }}" 
+                       class="btn btn-outline-primary {% if not status_filter %}active{% endif %}">
+                        Todos
+                    </a>
+                    <a href="{{ url_for('admin.pedidos', status='pendente') }}" 
+                       class="btn btn-outline-warning {% if status_filter == 'pendente' %}active{% endif %}">
+                        Pendentes
+                    </a>
+                    <a href="{{ url_for('admin.pedidos', status='aprovado') }}" 
+                       class="btn btn-outline-success {% if status_filter == 'aprovado' %}active{% endif %}">
+                        Aprovados
+                    </a>
+                    <a href="{{ url_for('admin.pedidos', status='rejeitado') }}" 
+                       class="btn btn-outline-danger {% if status_filter == 'rejeitado' %}active{% endif %}">
+                        Rejeitados
+                    </a>
+                    <a href="{{ url_for('admin.pedidos', status='entregue') }}" 
+                       class="btn btn-outline-info {% if status_filter == 'entregue' %}active{% endif %}">
+                        Entregues
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if orders %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nº</th>
+                            <th>Cliente</th>
+                            <th>Data</th>
+                            <th>Status</th>
+                            <th>Total</th>
+                            <th>Notificação</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>#{{ order.id }}</td>
+                            <td>{{ order.customer.username }}</td>
+                            <td>{{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                            <td>
+                                <span class="badge bg-{{ order.status|get_order_status_label }}">
+                                    {{ order.status }}
+                                </span>
+                            </td>
+                            <td>{{ order.total_amount|format_currency }}</td>
+                            <td>
+                                {% if order.payment_notification %}
+                                <span class="badge bg-warning">Pagamento Notificado</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{{ url_for('admin.pedido_detalhes', order_id=order.id) }}"
+                                       class="btn btn-sm btn-primary">
+                                        Ver Detalhes
+                                    </a>
+                                    {% if order.status == 'pendente' %}
+                                    <button type="button" 
+                                            class="btn btn-sm btn-success"
+                                            onclick="atualizarStatus({{ order.id }}, 'aprovado')">
+                                        Aprovar
+                                    </button>
+                                    <button type="button" 
+                                            class="btn btn-sm btn-danger"
+                                            onclick="atualizarStatus({{ order.id }}, 'rejeitado')">
+                                        Rejeitar
+                                    </button>
+                                    {% elif order.status == 'aprovado' %}
+                                    <button type="button" 
+                                            class="btn btn-sm btn-info"
+                                            onclick="atualizarStatus({{ order.id }}, 'entregue')">
+                                        Marcar como Entregue
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted mb-0">Nenhum pedido encontrado.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+function atualizarStatus(orderId, status) {
+    if (confirm('Tem certeza que deseja alterar o status deste pedido?')) {
+        fetch(`/admin/pedido/atualizar-status/${orderId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ status: status })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Erro ao atualizar o status do pedido.');
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Erro ao atualizar o status do pedido.');
+        });
+    }
+}
+</script>
+{% endblock %}
+
+{% endblock %} 

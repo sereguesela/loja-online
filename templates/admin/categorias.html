@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Gerenciar Categorias</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Nova Categoria -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Nova Categoria</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin.nova_categoria') }}">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ form.name.label(class="form-label") }}
+                            {{ form.name(class="form-control") }}
+                            {% if form.name.errors %}
+                                {% for error in form.name.errors %}
+                                    <div class="invalid-feedback d-block">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Adicionar Categoria</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de Categorias -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Categorias Existentes</h5>
+                </div>
+                <div class="card-body">
+                    {% if categories %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Produtos</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for category in categories %}
+                                <tr>
+                                    <td>{{ category.name }}</td>
+                                    <td>
+                                        {% set num_produtos = category.products|length %}
+                                        <span class="badge bg-info">{{ num_produtos }} produto(s)</span>
+                                    </td>
+                                    <td>
+                                        <form method="POST" action="{{ url_for('admin.excluir_categoria', category_id=category.id) }}" 
+                                              class="d-inline"
+                                              onsubmit="return confirm('Tem certeza que deseja excluir esta categoria?');">
+                                            {{ form.hidden_tag() }}
+                                            <button type="submit" class="btn btn-sm btn-danger" 
+                                                    {% if category.products %}disabled{% endif %}>
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted mb-0">Nenhuma categoria cadastrada.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

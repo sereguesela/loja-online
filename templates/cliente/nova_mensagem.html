@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('cliente.dashboard') }}">Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Nova Mensagem</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Nova Mensagem para o Suporte</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {{ form.csrf_token }}
+                
+                <div class="mb-3">
+                    <label for="content" class="form-label">Mensagem</label>
+                    {{ form.content(class="form-control", rows="5", placeholder="Digite sua mensagem aqui...") }}
+                    {% if form.content.errors %}
+                        {% for error in form.content.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{{ url_for('cliente.dashboard') }}" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Enviar Mensagem</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

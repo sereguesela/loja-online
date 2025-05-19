@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Painel Administrativo</h1>
+
+    <div class="row">
+        <!-- Resumo -->
+        <div class="col-md-12 mb-4">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card text-white bg-primary">
+                        <div class="card-body">
+                            <h5 class="card-title">Total de Pedidos</h5>
+                            <h2 class="card-text">{{ total_pedidos }}</h2>
+                            <p class="mb-0">Pedidos registrados</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-success">
+                        <div class="card-body">
+                            <h5 class="card-title">Pedidos Pendentes</h5>
+                            <h2 class="card-text">{{ pedidos_pendentes }}</h2>
+                            <p class="mb-0">Aguardando aprovação</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-info">
+                        <div class="card-body">
+                            <h5 class="card-title">Total de Produtos</h5>
+                            <h2 class="card-text">{{ total_produtos }}</h2>
+                            <p class="mb-0">Produtos cadastrados</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-warning">
+                        <div class="card-body">
+                            <h5 class="card-title">Mensagens Novas</h5>
+                            <h2 class="card-text">{{ mensagens_novas }}</h2>
+                            <p class="mb-0">Não lidas</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Últimos Pedidos -->
+        <div class="col-md-8 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Últimos Pedidos</h5>
+                    <a href="{{ url_for('admin.pedidos') }}" class="btn btn-sm btn-primary">Ver Todos</a>
+                </div>
+                <div class="card-body">
+                    {% if ultimos_pedidos %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Nº</th>
+                                    <th>Cliente</th>
+                                    <th>Data</th>
+                                    <th>Status</th>
+                                    <th>Total</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pedido in ultimos_pedidos %}
+                                <tr>
+                                    <td>#{{ pedido.id }}</td>
+                                    <td>{{ pedido.customer.username }}</td>
+                                    <td>{{ pedido.created_at.strftime('%d/%m/%Y') }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ pedido.status|get_order_status_label }}">
+                                            {{ pedido.status }}
+                                        </span>
+                                    </td>
+                                    <td>{{ pedido.total_amount|format_currency }}</td>
+                                    <td>
+                                        <a href="{{ url_for('admin.pedido_detalhes', order_id=pedido.id) }}" 
+                                           class="btn btn-sm btn-primary">
+                                            Ver
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted mb-0">Nenhum pedido registrado.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Mensagens Recentes -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Mensagens Recentes</h5>
+                    <a href="{{ url_for('admin.chat') }}" class="btn btn-sm btn-primary">Ver Todas</a>
+                </div>
+                <div class="card-body">
+                    {% if mensagens_recentes %}
+                    <div class="list-group list-group-flush">
+                        {% for mensagem in mensagens_recentes %}
+                        <a href="{{ url_for('admin.chat', user_id=mensagem.sender_id) }}" 
+                           class="list-group-item list-group-item-action {% if not mensagem.is_read %}bg-light{% endif %}">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ mensagem.sender.username }}</h6>
+                                <small class="text-muted">{{ mensagem.timestamp.strftime('%H:%M') }}</small>
+                            </div>
+                            <p class="mb-1 text-truncate">{{ mensagem.content }}</p>
+                            {% if mensagem.order_id %}
+                            <small class="text-muted">Ref: Pedido #{{ mensagem.order_id }}</small>
+                            {% endif %}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted mb-0">Nenhuma mensagem nova.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Ações Rápidas -->
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Ações Rápidas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <a href="{{ url_for('admin.novo_produto') }}" class="btn btn-primary btn-lg w-100 mb-2">
+                                <i class="fas fa-plus-circle"></i> Novo Produto
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('admin.categorias') }}" class="btn btn-success btn-lg w-100 mb-2">
+                                <i class="fas fa-tags"></i> Categorias
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('admin.pedidos') }}" class="btn btn-info btn-lg w-100 mb-2">
+                                <i class="fas fa-shopping-cart"></i> Pedidos
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('admin.clientes') }}" class="btn btn-warning btn-lg w-100 mb-2">
+                                <i class="fas fa-users"></i> Clientes
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
