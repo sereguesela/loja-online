@@ -21,44 +21,65 @@ Um site completo de vendas online desenvolvido com Flask, que permite a gestão 
 ## Instalação
 
 1. Clone o repositório:
-```
-git clone https://github.com/seu-usuario/site-vendas.git
+```bash
+git clone <seu-repositorio>
 cd site-vendas
 ```
 
-2. Crie um ambiente virtual e ative-o:
-```
+2. Crie um ambiente virtual:
+```bash
 python -m venv venv
-# No Windows
-venv\Scripts\activate
-# No Linux/Mac
-source venv/bin/activate
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate     # Windows
 ```
 
 3. Instale as dependências:
-```
+```bash
 pip install -r requirements.txt
 ```
 
-4. Configure as variáveis de ambiente (crie um arquivo `.env` na raiz do projeto):
-```
-SECRET_KEY=sua-chave-secreta
-MP_ACCESS_TOKEN=seu-token-do-mercado-pago
-MP_PUBLIC_KEY=sua-chave-publica-do-mercado-pago
-PIX_KEY=sua-chave-pix
-```
+4. Configure as variáveis de ambiente:
+- Copie o arquivo `env.example` para `.env`
+- Preencha as variáveis necessárias no arquivo `.env`
 
 5. Inicialize o banco de dados:
-```
-flask db init
-flask db migrate
+```bash
 flask db upgrade
 ```
 
-6. Execute a aplicação:
+## Deploy no Render
+
+1. Crie uma conta no [Render](https://render.com)
+
+2. Conecte seu repositório GitHub ao Render
+
+3. Crie um novo Web Service:
+   - Selecione seu repositório
+   - Nome: `site-vendas` (ou outro de sua preferência)
+   - Runtime: Python 3
+   - Build Command: `pip install -r requirements.txt`
+   - Start Command: `gunicorn wsgi:app`
+
+4. Configure as variáveis de ambiente no Render:
+   - `SECRET_KEY`
+   - `DATABASE_URL`
+   - `MP_ACCESS_TOKEN` (MercadoPago)
+   - `MP_PUBLIC_KEY` (MercadoPago)
+   - `PIX_KEY`
+   - `WTF_CSRF_SECRET_KEY`
+
+5. Deploy:
+   - O Render irá automaticamente fazer o deploy quando você enviar alterações para a branch principal
+
+## Desenvolvimento Local
+
+Para rodar o projeto localmente:
+
+```bash
+flask run
 ```
-python app.py
-```
+
+O site estará disponível em `http://localhost:5000`
 
 ## Estrutura do Projeto
 

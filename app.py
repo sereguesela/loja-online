@@ -8,14 +8,20 @@ from models import db, User, Product, Category, Order, OrderItem, Message
 from forms import LoginForm, RegistrationForm, ProductForm, CategoryForm, MessageForm, OrderPaymentNotificationForm
 from utils import save_image, admin_required, format_currency, get_order_status_label
 from config import Config
+# Em routes/main.py, por exemplo
+from app import csrf
+
+csrf = CSRFProtect()  # Instancia o CSRF globalmente
+
 
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
-    
+
     # Inicializa as extensões
     db.init_app(app)
-    csrf = CSRFProtect(app)  # Adiciona proteção CSRF
+    csrf.init_app(app)  # Inicializa no app
+
     
     login_manager = LoginManager()
     login_manager.init_app(app)
@@ -30,7 +36,6 @@ def create_app(config_class=Config):
     # Cria as tabelas do banco de dados
     with app.app_context():
         db.create_all()
-        # Cria um usuário admin se não existir
         if not User.query.filter_by(is_admin=True).first():
             admin = User(username='admin', email='admin@example.com', is_admin=True)
             admin.set_password('admin123')
@@ -61,6 +66,7 @@ def create_app(config_class=Config):
         return render_template('500.html'), 500
     
     return app
+
 
 if __name__ == '__main__':
     app = create_app()

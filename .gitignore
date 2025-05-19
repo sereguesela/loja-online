@@ -4,7 +4,6 @@ __pycache__/
 *$py.class
 *.so
 .Python
-env/
 build/
 develop-eggs/
 dist/
@@ -23,7 +22,10 @@ wheels/
 
 # Virtual Environment
 venv/
+meuvenv/
 ENV/
+env/
+.env
 
 # IDE
 .idea/
@@ -31,22 +33,21 @@ ENV/
 *.swp
 *.swo
 
-# Arquivos de ambiente
-.env
-.env.*
-
-# Banco de dados SQLite
+# Flask
 instance/
+.webassets-cache
+
+# SQLite
 *.db
 *.sqlite3
-
-# Arquivos de upload
-static/uploads/*
-!static/uploads/.gitkeep
 
 # Logs
 *.log
 
-# Arquivos do sistema
+# Media
+uploads/
+media/
+
+# Outros
 .DS_Store
 Thumbs.db 
