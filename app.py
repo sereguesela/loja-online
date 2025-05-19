@@ -3,6 +3,7 @@ from flask import Flask, render_template, flash, redirect, url_for, request
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from urllib.parse import urlparse
 from flask_wtf.csrf import CSRFProtect
+import secrets
 
 from models import db, User, Product, Category, Order, OrderItem, Message
 from forms import LoginForm, RegistrationForm, ProductForm, CategoryForm, MessageForm, OrderPaymentNotificationForm
@@ -34,10 +35,25 @@ def create_app(config_class=Config):
     with app.app_context():
         db.create_all()
         if not User.query.filter_by(is_admin=True).first():
-            admin = User(username='admin', email='admin@example.com', is_admin=True)
-            admin.set_password('admin123')
+            # Gera uma senha segura aleatória
+            admin_password = secrets.token_urlsafe(16)
+            
+            admin = User(
+                username='admin',
+                email='sereguesela@gmail.com',
+                is_admin=True
+            )
+            admin.set_password(admin_password)
             db.session.add(admin)
             db.session.commit()
+            
+            # Mostra a senha gerada apenas uma vez durante a criação
+            print('='*50)
+            print('Credenciais do Administrador:')
+            print(f'Email: sereguesela@gmail.com')
+            print(f'Senha: {admin_password}')
+            print('IMPORTANTE: Guarde esta senha em um local seguro!')
+            print('='*50)
     
     # Registra os blueprints
     from routes.main import main_bp
