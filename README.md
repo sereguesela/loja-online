@@ -1,118 +1,114 @@
-# Site de Vendas com Flask e Mercado Pago
+# Loja Online PHP
 
-Um site completo de vendas online desenvolvido com Flask, que permite a gestão de produtos, processamento de pedidos e pagamentos via PIX utilizando o Mercado Pago.
+Sistema completo de loja online desenvolvido em PHP com MySQL.
 
 ## Funcionalidades
 
 - 🔐 **Sistema de autenticação** para administradores e clientes
 - 🏪 **Catálogo de produtos** organizados por categoria
 - 🛒 **Sistema de compras** com status de pedidos
-- 💰 **Integração com PIX** para pagamentos
+- 💰 **Pagamentos via PIX**
 - 💬 **Chat interno** entre administradores e clientes
 - 📊 **Painel administrativo** para gerenciamento de produtos e pedidos
 
-## Tecnologias Utilizadas
+## Requisitos
 
-- **Backend**: Flask, SQLAlchemy, Flask-Login
-- **Frontend**: Bootstrap 5, FontAwesome
-- **Banco de Dados**: SQLite (pode ser substituído por MySQL ou PostgreSQL)
-- **Pagamentos**: Mercado Pago (PIX)
+- PHP 7.4 ou superior
+- MySQL 5.7 ou superior
+- Apache com mod_rewrite habilitado
+- Extensões PHP:
+  - PDO
+  - PDO_MYSQL
+  - GD (para manipulação de imagens)
+  - mbstring
+  - json
 
-## Instalação
+## Instalação Local
 
 1. Clone o repositório:
 ```bash
 git clone <seu-repositorio>
-cd site-vendas
+cd loja-online-php
 ```
 
-2. Crie um ambiente virtual:
+2. Configure o banco de dados:
+- Crie um banco de dados MySQL
+- Importe o arquivo `config/init.sql`
+- Copie `config/database.example.php` para `config/database.php`
+- Configure as credenciais do banco em `config/database.php`
+
+3. Configure as permissões:
 ```bash
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-venv\Scripts\activate     # Windows
+chmod 755 -R .
+chmod 777 -R uploads/
 ```
 
-3. Instale as dependências:
-```bash
-pip install -r requirements.txt
-```
+4. Configure o servidor web:
+- Aponte o DocumentRoot para a pasta do projeto
+- Certifique-se que o mod_rewrite está habilitado
+- Permita o uso de .htaccess
 
-4. Configure as variáveis de ambiente:
-- Copie o arquivo `env.example` para `.env`
-- Preencha as variáveis necessárias no arquivo `.env`
+## Instalação em Hospedagem Compartilhada
 
-5. Inicialize o banco de dados:
-```bash
-flask db upgrade
-```
+1. Faça upload dos arquivos:
+- Faça upload de todos os arquivos para sua hospedagem
+- Coloque os arquivos na pasta pública (geralmente `public_html`)
 
-## Deploy no Render
+2. Configure o banco de dados:
+- Crie um banco de dados no painel de controle da hospedagem
+- Importe o arquivo `config/init.sql` usando phpMyAdmin
+- Configure as credenciais em `config/database.php`
 
-1. Crie uma conta no [Render](https://render.com)
+3. Ajuste as permissões:
+- Pasta `uploads`: 777
+- Demais arquivos e pastas: 755
+- Arquivos de configuração: 644
 
-2. Conecte seu repositório GitHub ao Render
+## Configuração do Administrador
 
-3. Crie um novo Web Service:
-   - Selecione seu repositório
-   - Nome: `site-vendas` (ou outro de sua preferência)
-   - Runtime: Python 3
-   - Build Command: `pip install -r requirements.txt`
-   - Start Command: `gunicorn wsgi:app`
+O sistema criará automaticamente um usuário administrador:
+- Email: sereguesela@gmail.com
+- A senha será gerada automaticamente e mostrada no primeiro acesso
 
-4. Configure as variáveis de ambiente no Render:
-   - `SECRET_KEY`
-   - `DATABASE_URL`
-   - `MP_ACCESS_TOKEN` (MercadoPago)
-   - `MP_PUBLIC_KEY` (MercadoPago)
-   - `PIX_KEY`
-   - `WTF_CSRF_SECRET_KEY`
-
-5. Deploy:
-   - O Render irá automaticamente fazer o deploy quando você enviar alterações para a branch principal
-
-## Desenvolvimento Local
-
-Para rodar o projeto localmente:
-
-```bash
-flask run
-```
-
-O site estará disponível em `http://localhost:5000`
-
-## Estrutura do Projeto
+## Estrutura de Arquivos
 
 ```
-project_root/
-│
-├── app.py                    # Arquivo principal da aplicação Flask
-├── templates/                # Diretório para os templates HTML
-│   ├── admin/                # Templates específicos para área administrativa
-│   └── cliente/              # Templates específicos para área do cliente
-│
-├── static/                   # Arquivo para CSS, JS, imagens
-│   ├── css/
-│   ├── js/
-│   └── uploads/              # Imagens de produtos enviadas
-│
-├── models.py                 # Modelos do banco de dados
-├── routes/                   # Blueprints e rotas da aplicação
-├── forms.py                  # Definição de formulários Flask-WTF
-├── utils.py                  # Funções auxiliares e de segurança
-└── config.py                 # Configurações da aplicação
+loja-online-php/
+├── admin/           # Área administrativa
+├── cliente/         # Área do cliente
+├── assets/         # Arquivos estáticos (CSS, JS)
+├── config/         # Configurações
+├── includes/       # Arquivos incluídos
+├── uploads/        # Upload de imagens
+└── vendor/         # Dependências (se houver)
 ```
 
-## Usuário Padrão
+## Hospedagem Recomendada
 
-Para facilitar o primeiro acesso, o sistema cria automaticamente um usuário administrador:
+O sistema foi projetado para funcionar em qualquer hospedagem PHP compartilhada. Recomendamos:
 
-- **Email**: admin@example.com
-- **Senha**: admin123
+- [Hostgator](https://www.hostgator.com.br)
+- [Locaweb](https://www.locaweb.com.br)
+- [HostPapa](https://www.hostpapa.com.br)
+- [GoDaddy](https://br.godaddy.com)
 
-*Lembre-se de alterar estas credenciais em ambiente de produção!*
+Todas essas hospedagens oferecem:
+- PHP 7.4 ou superior
+- MySQL 5.7 ou superior
+- Certificado SSL gratuito
+- Painel de controle cPanel
 
-## Contribuições
+## Segurança
+
+O sistema inclui várias medidas de segurança:
+- Proteção contra CSRF
+- Senhas criptografadas com bcrypt
+- Proteção contra SQL Injection usando PDO
+- Validação de entrada
+- Headers de segurança
+- Proteção de arquivos sensíveis
+
+## Contribuição
 
 Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou enviar pull requests.
 
